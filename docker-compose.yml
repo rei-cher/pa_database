@@ -1,0 +1,43 @@
+services:
+
+    db:
+        image: postgres:14
+        container_name: dkdermdb
+        environment:
+            POSTGRES_DB: dkdermdb
+            POSTGRES_USER: dkderm2025
+            POSTGRES_PASSWORD: dkderm2025!
+        restart: unless-stopped
+        ports:
+            - 5432:5432
+        volumes:
+            - db_data:/var/lib/postgresql/data
+            - .//init-scripts:/docker-entrypoint-initdb.d
+
+    pgadmin:
+        image: dpage/pgadmin4:latest
+        container_name: dkderm_pgadmin
+        environment:
+            PGADMIN_DEFAULT_EMAIL: dkderm2025@admin.com
+            PGADMIN_DEFAULT_PASSWORD: dkderm2025!
+        restart: unless-stopped
+        ports:
+            - 8080:80
+        depends_on:
+            - db
+
+#   backup:
+#     image: postgres:14
+#     depends_on:
+#       - db
+#     volumes:
+#       - db_data:/var/lib/postgresql/data:ro
+#       - ./backup:/backup
+#       - ./crontab:/etc/cron.d/backup-cron
+#     environment:
+#       # let cron-run pg_dump authenticate
+#       PGPASSWORD: dkdermpassword
+#     entrypoint: ["sh", "-c", "chmod 0644 /etc/cron.d/backup-cron && crontab /etc/cron.d/backup-cron && crond -f -L /var/log/cron.log"]
+
+volumes:
+  db_data:
